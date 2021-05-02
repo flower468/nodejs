@@ -1,0 +1,78 @@
+let promise = new Promise(function(resolve, reject){
+    setTimeout(function(){
+        if(false){
+            resolve("Success : resolve message");
+        }else{
+            reject("Error : reject message")
+        }
+    }, 2000)
+});
+
+promise.then(function(successmessage){
+    console.log(successmessage);
+}).catch(function(errormessage){
+    console.log(errormessage);
+});
+
+++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+let promise = new Promise(function(resolve, reject){
+    setTimeout(function(){
+        if(true){
+            resolve("Success : resolve message");
+        }else{
+            reject("Error : reject message")
+        }
+    }, 2000)
+});
+promise.then(
+        function(successmessage){
+            console.log(successmessage);
+            return successmessage.toUpperCase();
+        })
+        .then(
+        function(successmessage){
+            console.log(successmessage);
+        })
+        .catch(
+        function(errormessage){
+            console.log(errormessage);
+        });
+
+++++++++++++++++++++++++++++++++++++++++++++++++++++++
+let asyncCall2 = function(msg){
+    let promise = new Promise(function(resolve, reject){
+        setTimeout(function(){
+            if(true){
+                resolve("Success : resolve message from asyncCall2  "+msg);
+            }else{
+                reject("Error : reject message from asyncCall2")
+            }
+        }, 2000)
+    });
+    return promise;
+};
+let asyncCall1 = function(){
+    let promise =  new Promise(function(resolve, reject){
+        setTimeout(function(){
+            if(true){
+                resolve( 
+                    asyncCall2("welcome to your life") 
+                    );
+            }else{
+                reject("Error : reject message from asyncCall1")
+            }
+        }, 1000)
+    });
+    return promise;
+};
+
+asyncCall1().then(
+        function(successmessage){
+            console.log(successmessage);
+        }).catch(function(errormessage){
+            console.log(errormessage);
+        });
+
+
+++++++++++++++++++++++++++++++++++++++++++++++++++++++
