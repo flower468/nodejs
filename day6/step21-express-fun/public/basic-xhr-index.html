@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home Page</title>
+    <script>
+        var xhr = new XMLHttpRequest();
+        document.addEventListener("DOMContentLoaded", function(){
+            document.getElementsByTagName("button")[0].addEventListener("click", function(){
+                // alert("hello");
+                // xhr.onreadystatechange(function(){});
+                xhr.addEventListener("readystatechange",function(){
+                    // console.log(xhr.readyState);
+                    // console.log(xhr.responseText);
+                    if(xhr.readyState == 4 && xhr.status == 200){
+                        let users = JSON.parse(xhr.responseText);
+                        // console.log(users.users);
+                        for(let i = 0; i < users.users.length; i++){
+                            document.querySelector("ul").innerHTML += "<li> "+users.users[i]+" </li>";
+                        }
+                    }
+                });
+                xhr.open("get","/data",true);
+                xhr.send();
+            });
+        })
+    </script>
+</head>
+<body>
+    <h1>Application Home Page</h1>
+    <button>Get Data</button>
+    <ul></ul>
+</body>
+</html>
