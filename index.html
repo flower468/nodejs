@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src="lib/jquery-3.6.0.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-giJF6kkoqNQ00vy+HMDP7azOuL0xtbfIcaT9wjKHr8RbDVddVHyTfAAsrekwKmP1" crossorigin="anonymous">
+    <script>
+        let callAjax = function(){
+            $.ajax({
+                url : "/data",
+                success : function(res){
+                    // console.log(res);
+                    $("#usergrid tbody").empty();
+                    res.forEach( function(val, idx){
+                        $("#usergrid tbody").append(`
+                        <tr>
+                            <th>${ idx + 1 }</th>
+                            <td>${ val.username }</td>
+                            <td>${ val.usermail }</td>
+                            <td>${ val.usercity }</td>
+                            <td>
+                                <button class="editBtn" data="${ val._id }"> Edit </button>
+                            </td>
+                            <td>
+                                <button class="delBtn" data="${ val._id }"> Delete </button>
+                            </td>
+                        </tr>
+                        `);
+                    })
+                },
+                error : function(error){
+                    console.log("Error : ", error)
+                }
+            });
+        }
+        $(()=>{
+            callAjax();
+            $("#userEditForm").hide();// hide edit form
+            //---------------------------
+            $("#usergrid tbody").on("click", "button.delBtn", function(evt){
+                // console.log(evt.target.getAttribute("data"));
+                $.ajax({
+                    method: "get",
+                    url : "/delete/"+evt.target.getAttribute("data"),
+                    success : function(res){
+                        // console.log(res);
+                        callAjax();
+                    },
+                    error : function(error){
+                        console.log(error);
+                    }
+                })
+            });
+            //---------------------------
+            $("#usergrid tbody").on("click", "button.editBtn", function(evt){
+                // console.log(evt.target.getAttribute("data"));
+                $.ajax({
+                    method: "get",
+                    url : "/edit/"+evt.target.getAttribute("data"),
+                    success : function(res){
+                        // console.log(res);
+                        // callAjax();
+                        $("#userEditForm").show();
+                        $("#editusername").val(res.username);
+                        $("#editusermail").val(res.usermail);
+                        $("#editusercity").val(res.usercity);
+                        $("#edituserid").val(res._id);
+                       // alert(res._id)
+                    },
+                    error : function(error){
+                        console.log(error);
+                    }
+                })
+            })
+            //---------------------------
+            $("#userAddForm").on("submit", function(evt){
+                evt.preventDefault();
+                let user = {
+                    "username" : $("#username").val(),
+                    "usermail" : $("#usermail").val(),
+                    "usercity" : $("#usercity").val()
+                };
+                // console.log(user);
+                $.ajax({
+                    url : "/data",
+                    method : "post",
+                    data : JSON.stringify(user),
+                    dataType : "json",
+                    contentType : "application/json",
+                    success : function(res){
+                        // console.log(res);
+                        callAjax();
+                        $("#username").val('');
+                        $("#usermail").val('');
+                        $("#usercity").val('');
+                    },
+                    error : function(error){
+                        console.log(error);
+                    }
+                })
+            })
+            //---------------------------
+            $("#userEditForm").on("submit", function(evt){
+                evt.preventDefault();
+                let user = {
+                    "username" : $("#editusername").val(),
+                    "usermail" : $("#editusermail").val(),
+                    "usercity" : $("#editusercity").val()
+                };
+                // console.log(user);
+                $.ajax({
+                    url : "/edit/"+$("#edituserid").val(),
+                    method : "post",
+                    data : JSON.stringify(user),
+                    dataType : "json",
+                    contentType : "application/json",
+                    success : function(res){
+                        // console.log(res);
+                        $("#editusername").val('');
+                        $("#editusermail").val('');
+                        $("#editusercity").val('');
+                        $("#edituserid").val('')
+                        $("#userEditForm").hide();// hide edit form
+                        callAjax();
+                    },
+                    error : function(error){
+                        console.log(error);
+                    }
+                })
+            })
+        })
+    </script>
+</head>
+<body>
+<div class="container">
+    <h1>Node Users Application</h1>
+    <form id="userAddForm">
+        <div class="mb-3">
+          <label for="username" class="form-label">User Name</label>
+          <input type="text" class="form-control" id="username" >
+        </div>
+        <div class="mb-3">
+          <label for="usermail" class="form-label">User Mail</label>
+          <input type="text" class="form-control" id="usermail">
+        </div>
+        <div class="mb-3">
+          <label class="form-label" for="usercity">User City</label>
+          <input type="text" class="form-control" id="usercity">
+        </div>
+        <button type="submit" class="btn btn-primary">Submit</button>
+      </form>
+    <hr/>
+    <form id="userEditForm">
+        <input type="hidden" id="edituserid">
+        <div class="mb-3">
+          <label for="editusername" class="form-label">User Name</label>
+          <input type="text" class="form-control" id="editusername" >
+        </div>
+        <div class="mb-3">
+          <label for="editusermail" class="form-label">User Mail</label>
+          <input type="text" class="form-control" id="editusermail">
+        </div>
+        <div class="mb-3">
+          <label class="form-label" for="editusercity">User City</label>
+          <input type="text" class="form-control" id="editusercity">
+        </div>
+        <button type="submit" class="btn btn-primary">Update</button>
+      </form>
+    <hr/>
+    <table id="usergrid" class="table">
+        <thead>
+          <tr>
+            <th>Sl #</th>
+            <th>User Name</th>
+            <th>User Mail</th>
+            <th>User City</th>
+            <th>Edit User</th>
+            <th>Delete User</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+      <hr>
+
+</div>
+
+</body>
+</html>
